@@ -94,7 +94,7 @@ ch = hs.height if hs.width / hs.height > 0.8 else round(hs.width / 0.8)
 cw = round(ch * 0.8)
 x0 = min(max(0, round(FACE_X * hs.width - cw / 2)), hs.width - cw)
 hs = hs.crop((x0, 0, x0 + cw, ch)).resize((960, 1200), Image.LANCZOS)
-hs.save(OUT / "headshot.jpg", quality=84, optimize=True, progressive=True)
+hs.save(OUT / "evans-armantrading-iii.jpg", quality=84, optimize=True, progressive=True)
 
 # --- Open Graph image 1200x630 -----------------------------------------
 og = poster.resize((1200, 675), Image.LANCZOS).crop((0, 22, 1200, 652))

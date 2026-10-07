@@ -26,14 +26,14 @@ Then open http://localhost:8000. Opening `index.html` directly from disk also wo
 
 ## Headshot
 
-The About section loads `assets/img/headshot.jpg`, a 960×1200 (4:5) crop.
+The About section loads `assets/img/evans-armantrading-iii.jpg`, a 960×1200 (4:5) crop.
 
 To change the photo:
 1. Save the new original as `assets/src/headshot-original.jpg`.
 2. Run `python tools/build_images.py`. It crops a 4:5 portrait around `FACE_X`, the face's horizontal position from 0 to 1, which is set near the top of the headshot block.
 3. Commit and push.
 
-You can also save any 4:5 JPG directly over `assets/img/headshot.jpg`.
+You can also save any 4:5 JPG directly over `assets/img/evans-armantrading-iii.jpg`.
 
 ## Update content
 
