@@ -186,12 +186,5 @@ window.POSTS = [
     summary: "Sponsored by Urban Tech Hero, worked through the Google Cybersecurity Certificate on Coursera course by course, including Foundations of Cybersecurity; Play It Safe: Manage Security Risks; and Connect and Protect: Networks and Network Security, then earned the full certificate.",
     url: "",
     links: [{ label: "Verify on Credly", href: "https://www.credly.com/badges/bde31bae-c94b-4d35-8a11-dd936c0c6206/public_url" }]
-  },
-  {
-    key: "27", screenshot: { img: "27", w: 339, h: 312 }, posts: ["27"], cats: ["career"],
-    title: "Continuing CS at Delaware State",
-    quotes: ["Excited to continue my journey as a Computer Science major at Delaware State University!"],
-    summary: "Ready to dive into coding projects and explore software engineering.",
-    url: ""
   }
 ];

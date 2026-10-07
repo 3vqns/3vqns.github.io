@@ -76,7 +76,7 @@ Highlights are defined in `assets/js/posts-data.js`, one card per event or achie
 python tools/build_post_photos.py "C:/Users/evans/Desktop/LinkedIn_SS/Original_Posts"
 ```
 
-**Cards without photos** (currently only "Continuing CS at Delaware State") use `screenshot: { img, w, h }` in place of `key` and `photos`. They need `assets/posts/post-NN.webp` and a 452 px-tall `post-NN-thumb.webp` top crop:
+**Cards without photos** (none at the moment) can use `screenshot: { img, w, h }` in place of `key` and `photos`. They need `assets/posts/post-NN.webp` and a 452 px-tall `post-NN-thumb.webp` top crop:
 
 ```bash
 python -c "from PIL import Image; im=Image.open('shot.png').convert('RGB'); im.save('assets/posts/post-28.webp','WEBP',quality=82,method=6); im.crop((0,0,im.width,min(im.height,452))).save('assets/posts/post-28-thumb.webp','WEBP',quality=80,method=6)"
