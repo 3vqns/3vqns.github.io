@@ -855,6 +855,9 @@ button { font: inherit; color: inherit; }
   border-left: 2px solid var(--signal);
   color: var(--bone);
 }
+.lightbox__quotes { display: grid; gap: 14px; }
+.lightbox__quotes:has(.lightbox__from) .lightbox__quote { font-size: 1rem; }
+.lightbox__from { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mute); }
 .lightbox__summary { color: var(--bone-dim); }
 .lightbox__links { display: flex; flex-wrap: wrap; gap: 20px; }
 

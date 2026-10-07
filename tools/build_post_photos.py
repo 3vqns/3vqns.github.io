@@ -4,14 +4,17 @@ Usage (from the repo root):
     python tools/build_post_photos.py "C:/Users/evans/Desktop/LinkedIn_SS/Original_Posts"
 
 Each post folder in the source is named NN_..., containing image_01.jpg, image_02.jpg, ...
-ORDER lists which images to use for each post; the first one is the card cover.
-Entries can be an int (image number in that post's folder) or ("NN", k) to borrow
-image k from another post's folder.
+ORDER maps a card key (used as `key` in assets/js/posts-data.js) to the photos for that
+card; the first one is the card cover. A card can combine several posts about the same
+event. Each entry is one of:
+    ("NN", k)        image k from post NN's folder
+    "path/to.png"    a file relative to the repo root (e.g. a credential badge in assets/src)
 
-Outputs:
-    post-NN-card.webp   cover, max 800 px wide, for the gallery card
-    post-NN-K.webp      every listed photo, max 1400 px on the long edge, for the lightbox
+Outputs (the folder is rebuilt from scratch):
+    post-KEY-card.webp   cover, max 800 px wide, for the gallery card
+    post-KEY-K.webp      every listed photo, max 1400 px on the long edge, for the lightbox
 """
+import shutil
 import sys
 from pathlib import Path
 from PIL import Image, ImageOps
@@ -20,33 +23,31 @@ ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "assets" / "posts" / "photos"
 
 ORDER = {
-    "01": [1],
-    "02": [1, 2],
-    "03": [1, 2, 3],
-    "04": [1, 2, 3],
-    "05": [1, 2, 3],
-    "06": [1],
-    "07": [3, 1, 2],
-    "08": [2, 1, 3],
-    "09": [2, 1],
-    "10": [2, 3, 4, 1],
-    "11": [1, 2, 3, 4],
-    "12": [1, 4, 2, 3],
-    "13": [1, 2, 3, 4],
-    "14": [1, 2, 3],
-    "15": [("16", 2)],          # own image is a 160 px link thumbnail; same HenHacks team photo
-    "16": [4, 3, 5, 2, 1],
-    "17": [1],
-    "18": [1],
-    "19": [1, 2, 3],
-    "20": [1],
-    "21": [1],
-    "26": [1],
+    "01": [("01", 1)],
+    "02": [("02", 1), ("02", 2)],
+    "fico": [("04", 1), ("04", 2), ("04", 3), ("03", 1), ("03", 2), ("03", 3)],  # start + wrap-up
+    "05": [("05", 1), ("05", 2), ("05", 3)],
+    "06": [("06", 1)],
+    "07": [("07", 3), ("07", 1), ("07", 2)],
+    "08": [("08", 2), ("08", 1), ("08", 3)],
+    "09": [("09", 2), ("09", 1)],
+    "10": [("10", 2), ("10", 3), ("10", 4), ("10", 1)],
+    "11": [("11", 1), ("11", 2), ("11", 3), ("11", 4)],
+    "12": [("12", 1), ("12", 4), ("12", 2), ("12", 3)],
+    "13": [("13", 1), ("13", 2), ("13", 3), ("13", 4)],
+    "14": [("14", 1), ("14", 2), ("14", 3)],
+    "henhacks": [("16", 4), ("16", 3), ("16", 5), ("16", 2), ("16", 1)],  # posts 15 + 16
+    "18": [("18", 1)],
+    "19": [("19", 1), ("19", 2), ("19", 3)],
+    "20": [("20", 1)],
+    "21": [("21", 1)],
+    "cyber": ["assets/src/certs/google-cybersecurity-badge.png", ("26", 1)],  # posts 22-26
 }
 
-
-# Photos with black letterbox bars to trim (post-k).
+# Photos with black letterbox bars to trim (KEY-k).
 TRIM = {"19-1"}
+# Small logos to centre on a white canvas so the lightbox doesn't stretch them (KEY-k: canvas size).
+PAD = {"cyber-2": (900, 600)}
 
 
 def trim_bars(im, threshold=18):
@@ -65,25 +66,39 @@ def fit(im, max_w=None, max_long=None):
     return im if s == 1.0 else im.resize((round(w * s), round(h * s)), Image.LANCZOS)
 
 
+def load(item, folders):
+    path = ROOT / item if isinstance(item, str) else folders[item[0]] / f"image_{item[1]:02d}.jpg"
+    im = ImageOps.exif_transpose(Image.open(path))
+    if im.mode in ("RGBA", "LA", "P"):
+        im = im.convert("RGBA")
+        bg = Image.new("RGB", im.size, (255, 255, 255))
+        bg.paste(im, mask=im.getchannel("A"))
+        return bg
+    return im.convert("RGB")
+
+
 def main(src):
-    src = Path(src)
-    folders = {p.name[:2]: p for p in src.iterdir() if p.is_dir()}
-    OUT.mkdir(parents=True, exist_ok=True)
+    folders = {p.name[:2]: p for p in Path(src).iterdir() if p.is_dir()}
+    shutil.rmtree(OUT, ignore_errors=True)
+    OUT.mkdir(parents=True)
     total = 0
-    for num, items in ORDER.items():
+    for key, items in ORDER.items():
         for k, item in enumerate(items, 1):
-            folder, idx = (folders[item[0]], item[1]) if isinstance(item, tuple) else (folders[num], item)
-            im = ImageOps.exif_transpose(Image.open(folder / f"image_{idx:02d}.jpg")).convert("RGB")
-            if f"{num}-{k}" in TRIM:
+            im = load(item, folders)
+            if f"{key}-{k}" in TRIM:
                 im = trim_bars(im)
-            dst = OUT / f"post-{num}-{k}.webp"
+            if f"{key}-{k}" in PAD:
+                canvas = Image.new("RGB", PAD[f"{key}-{k}"], (255, 255, 255))
+                canvas.paste(im, ((canvas.width - im.width) // 2, (canvas.height - im.height) // 2))
+                im = canvas
+            dst = OUT / f"post-{key}-{k}.webp"
             fit(im, max_long=1400).save(dst, "WEBP", quality=80, method=6)
             total += dst.stat().st_size
             if k == 1:
-                card = OUT / f"post-{num}-card.webp"
+                card = OUT / f"post-{key}-card.webp"
                 fit(im, max_w=800).save(card, "WEBP", quality=76, method=6)
                 total += card.stat().st_size
-            print(f"post-{num}-{k}.webp  {im.size[0]}x{im.size[1]}")
+        print(f"{key:9s} {len(items)} photo(s)")
     print(f"total {total // 1024} KB")
 
 

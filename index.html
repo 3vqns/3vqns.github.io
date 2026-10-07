@@ -46,7 +46,7 @@
     "familyName": "Armantrading",
     "honorificSuffix": "III",
     "url": "https://3vqns.github.io/",
-    "image": "https://3vqns.github.io/assets/img/og.jpg",
+    "image": "https://3vqns.github.io/assets/img/headshot.jpg",
     "email": "mailto:evansarm3@gmail.com",
     "telephone": "+1-302-730-7344",
     "description": "Computer Science senior at Delaware State University focused on software engineering and AI.",
@@ -78,7 +78,7 @@
           <li><a href="#experience">Experience</a></li>
           <li><a href="#projects">Projects</a></li>
           <li><a href="#skills">Skills</a></li>
-          <li><a href="#posts">Posts</a></li>
+          <li><a href="#highlights">Highlights</a></li>
           <li><a href="#education">Education</a></li>
           <li><a href="#contact">Contact</a></li>
         </ul>
@@ -134,8 +134,8 @@
       <div class="container about__grid">
         <figure class="about__portrait" data-reveal>
           <div class="frame frame--portrait" data-parallax="0.06">
-            <!-- HEADSHOT: replace assets/img/headshot.jpg (4:5 crop recommended) -->
-            <img src="assets/img/headshot.jpg" alt="Portrait of Evans Armantrading III" width="800" height="1000" loading="lazy" decoding="async">
+            <!-- HEADSHOT: assets/img/headshot.jpg (4:5), built from assets/src/headshot-original.jpg -->
+            <img src="assets/img/headshot.jpg" alt="Portrait of Evans Armantrading III" width="960" height="1200" loading="lazy" decoding="async">
           </div>
         </figure>
         <div class="about__body">
@@ -335,17 +335,17 @@
     </section>
 
     <!-- POSTS --------------------------------------------------------------->
-    <section class="section posts" id="posts" aria-labelledby="posts-title">
+    <section class="section posts" id="highlights" aria-labelledby="highlights-title">
       <div class="container">
         <header class="section__head posts__head" data-reveal>
           <div>
-            <p class="section__index"><span>05</span> Featured posts</p>
-            <h2 class="section__title" id="posts-title">From LinkedIn</h2>
+            <p class="section__index"><span>05</span> Highlights</p>
+            <h2 class="section__title" id="highlights-title">Things I've done</h2>
           </div>
           <a class="link" href="https://www.linkedin.com/in/evansiii/recent-activity/all/" rel="noopener">All activity on LinkedIn <span aria-hidden="true">↗</span></a>
         </header>
 
-        <div class="filters" role="group" aria-label="Filter posts" data-filters>
+        <div class="filters" role="group" aria-label="Filter highlights" data-filters>
           <button type="button" class="filter" data-filter="featured" aria-pressed="true">Featured</button>
           <button type="button" class="filter" data-filter="all" aria-pressed="false">All</button>
           <button type="button" class="filter" data-filter="award" aria-pressed="false">Awards</button>
@@ -378,7 +378,7 @@
             <div class="lightbox__shot" tabindex="0" role="region" aria-label="Post media, scrollable"></div>
             <div class="lightbox__text">
               <h3 class="lightbox__title" id="lb-title" data-lb-title></h3>
-              <blockquote class="lightbox__quote" data-lb-quote></blockquote>
+              <div class="lightbox__quotes" data-lb-quotes></div>
               <p class="lightbox__summary" data-lb-summary></p>
               <p class="lightbox__links" data-lb-links></p>
             </div>

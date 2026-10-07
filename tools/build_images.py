@@ -4,7 +4,7 @@ Run from the repo root:  python tools/build_images.py
 Requires Pillow. Outputs land in assets/img.
 """
 from pathlib import Path
-from PIL import Image, ImageDraw, ImageFilter, ImageFont
+from PIL import Image, ImageDraw, ImageFilter, ImageFont, ImageOps
 
 ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "assets" / "src"
@@ -86,24 +86,15 @@ lo, hi = c.getextrema()
 c = c.point(lambda v: int(96 + (v - lo) * 64 / max(1, hi - lo)))
 save_webp(c.convert("RGB"), OUT / "grain.webp", 70)
 
-# --- Headshot placeholder (swap this file for the real photo) -----------
-W, H = 800, 1000
-ph = Image.new("RGB", (W, H), (13, 17, 22))
-glow = Image.new("RGB", (W, H), (13, 17, 22))
-ImageDraw.Draw(glow).ellipse([150, 220, 650, 720], fill=(44, 60, 26))
-ph = glow.filter(ImageFilter.GaussianBlur(140))
-tile = c.convert("RGB").resize((256, 256))
-grain_layer = Image.new("RGB", (W, H))
-for gx in range(0, W, 256):
-    for gy in range(0, H, 256):
-        grain_layer.paste(tile, (gx, gy))
-ph = Image.blend(ph, grain_layer, 0.06)
-d = ImageDraw.Draw(ph)
-monogram(d, 250, 330, 300, color=(236, 232, 223), accent=SIGNAL)
-brackets(d, (40, 40, W - 40, H - 40), 54, 3, (236, 232, 223))
-mono = font("geist-mono-latin.woff2", 22, wght=500)
-d.text((72, H - 104), "EVANS ARMANTRADING III", font=mono, fill=MUTE)
-ph.save(OUT / "headshot.jpg", quality=86, optimize=True, progressive=True)
+# --- Headshot: 4:5 crop centred on the face ------------------------------
+# Source: assets/src/headshot-original.jpg. FACE_X is the face's horizontal centre (0-1).
+FACE_X = 0.478
+hs = ImageOps.exif_transpose(Image.open(SRC / "headshot-original.jpg")).convert("RGB")
+ch = hs.height if hs.width / hs.height > 0.8 else round(hs.width / 0.8)
+cw = round(ch * 0.8)
+x0 = min(max(0, round(FACE_X * hs.width - cw / 2)), hs.width - cw)
+hs = hs.crop((x0, 0, x0 + cw, ch)).resize((960, 1200), Image.LANCZOS)
+hs.save(OUT / "headshot.jpg", quality=84, optimize=True, progressive=True)
 
 # --- Open Graph image 1200x630 -----------------------------------------
 og = poster.resize((1200, 675), Image.LANCZOS).crop((0, 22, 1200, 652))

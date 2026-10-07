@@ -170,13 +170,13 @@
   const cardImage = (p) => {
     if (!p.photos) {
       return `<span class="post-card__shot post-card__shot--screenshot">
-            <img src="assets/posts/post-${p.img}-thumb.webp" width="339" height="452" loading="lazy" decoding="async"
+            <img src="assets/posts/post-${p.screenshot.img}-thumb.webp" width="339" height="452" loading="lazy" decoding="async"
                  alt="Screenshot of Evans's LinkedIn post: ${esc(p.title)}">
           </span>`;
     }
-    const style = [p.pos ? `object-position:${p.pos}` : "", p.bg ? `background:${p.bg}` : ""].filter(Boolean).join(";");
+    const style = p.pos ? `object-position:${p.pos}` : "";
     return `<span class="post-card__shot${p.fit === "contain" ? " post-card__shot--contain" : ""}"${p.bg ? ` style="background:${p.bg}"` : ""}>
-            <img src="assets/posts/photos/post-${p.img}-card.webp" loading="lazy" decoding="async"
+            <img src="assets/posts/photos/post-${p.key}-card.webp" loading="lazy" decoding="async"
                  alt="${esc(p.alt || p.title)}"${style ? ` style="${style}"` : ""}>
           </span>`;
   };
@@ -184,7 +184,7 @@
   if (grid && POSTS.length) {
     grid.innerHTML = POSTS.map((p, i) => `
       <li class="post-card" data-reveal data-index="${i}">
-        <button type="button" class="post-card__btn" aria-haspopup="dialog" aria-label="Open post: ${esc(p.title)}">
+        <button type="button" class="post-card__btn" aria-haspopup="dialog" aria-label="Open details: ${esc(p.title)}">
           ${cardImage(p)}
           <span class="post-card__body">
             <span class="post-card__cat">${p.cats.map((c) => CAT_LABEL[c]).join(" · ")}</span>
@@ -203,7 +203,7 @@
         card.classList.toggle("is-hidden", !show);
         if (show) { currentList.push(+card.dataset.index); card.classList.add("is-visible"); }
       });
-      status.textContent = `Showing ${currentList.length} post${currentList.length === 1 ? "" : "s"}.`;
+      status.textContent = `Showing ${currentList.length} highlight${currentList.length === 1 ? "" : "s"}.`;
     };
     $$("[data-filter]").forEach((btn) => btn.addEventListener("click", () => {
       $$("[data-filter]").forEach((b) => b.setAttribute("aria-pressed", String(b === btn)));
@@ -225,25 +225,29 @@
     const p = POSTS[currentList[currentIndex]];
     if (p.photos) {
       shot.classList.add("lightbox__shot--photos");
-      shot.setAttribute("aria-label", `Photos from the post, ${p.photos} total, scrollable`);
+      shot.setAttribute("aria-label", `Photos, ${p.photos} total, scrollable`);
       shot.innerHTML = Array.from({ length: p.photos }, (_, k) => {
-        const alt = k === 0 ? (p.alt || p.title) : `Photo ${k + 1} of ${p.photos} from the post: ${p.title}`;
+        const alt = k === 0 ? (p.alt || p.title) : `Photo ${k + 1} of ${p.photos}: ${p.title}`;
         const bg = k === 0 && p.bg ? ` style="background:${p.bg}"` : "";
-        return `<img src="assets/posts/photos/post-${p.img}-${k + 1}.webp" alt="${esc(alt)}" decoding="async"${k ? ' loading="lazy"' : ""}${bg}>`;
+        return `<img src="assets/posts/photos/post-${p.key}-${k + 1}.webp" alt="${esc(alt)}" decoding="async"${k ? ' loading="lazy"' : ""}${bg}>`;
       }).join("");
     } else {
+      const s = p.screenshot;
       shot.classList.remove("lightbox__shot--photos");
       shot.setAttribute("aria-label", "Post screenshot, scrollable");
-      shot.innerHTML = `<img src="assets/posts/post-${p.img}.webp" width="${p.w}" height="${p.h}" decoding="async"
+      shot.innerHTML = `<img src="assets/posts/post-${s.img}.webp" width="${s.w}" height="${s.h}" decoding="async"
         alt="${esc(`Full screenshot of Evans's LinkedIn post: ${p.title}`)}">`;
     }
     $("[data-lb-title]", lightbox).textContent = p.title;
-    $("[data-lb-quote]", lightbox).textContent = `“${p.excerpt}”`;
+    const quotes = $("[data-lb-quotes]", lightbox);
+    quotes.innerHTML = (p.quotes.length > 1 ? `<p class="lightbox__from">From ${p.quotes.length} LinkedIn posts</p>` : "") +
+      p.quotes.map((q) => `<blockquote class="lightbox__quote">“${esc(q)}”</blockquote>`).join("");
     $("[data-lb-summary]", lightbox).textContent = p.summary;
     $("[data-lb-count]", lightbox).textContent = `${currentIndex + 1} / ${currentList.length}`;
-    const links = [`<a class="link" href="${esc(p.url || PROFILE_FEED)}" rel="noopener" target="_blank">View on LinkedIn <span aria-hidden="true">↗</span></a>`];
-    if (p.extra) links.push(`<a class="link" href="${esc(p.extra.href)}" rel="noopener" target="_blank">${esc(p.extra.label)} <span aria-hidden="true">↗</span></a>`);
-    $("[data-lb-links]", lightbox).innerHTML = links.join("");
+    const links = [{ label: "View on LinkedIn", href: p.url || PROFILE_FEED }, ...(p.links || [])];
+    $("[data-lb-links]", lightbox).innerHTML = links
+      .map((l) => `<a class="link" href="${esc(l.href)}" rel="noopener" target="_blank">${esc(l.label)} <span aria-hidden="true">↗</span></a>`)
+      .join("");
     shot.scrollTop = 0;
     const multi = currentList.length > 1;
     $("[data-lb-prev]", lightbox).disabled = !multi;

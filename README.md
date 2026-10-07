@@ -24,15 +24,16 @@ python -m http.server 8000
 
 Then open http://localhost:8000. Opening `index.html` directly from disk also works.
 
-## Swap in the headshot
+## Headshot
 
-The About section loads **one file**: `assets/img/headshot.jpg`.
+The About section loads `assets/img/headshot.jpg`, a 960×1200 (4:5) crop.
 
-1. Export your photo as a JPG, ideally a 4:5 portrait at around 800×1000 px. Other sizes are cropped to fit with `object-fit: cover`.
-2. Save it over `assets/img/headshot.jpg`, keeping the same name.
-3. Commit and push. The site redeploys automatically.
+To change the photo:
+1. Save the new original as `assets/src/headshot-original.jpg`.
+2. Run `python tools/build_images.py`. It crops a 4:5 portrait around `FACE_X`, the face's horizontal position from 0 to 1, which is set near the top of the headshot block.
+3. Commit and push.
 
-To use a different filename or format such as `.webp`, change the single `src` on the line marked `<!-- HEADSHOT -->` in `index.html`.
+You can also save any 4:5 JPG directly over `assets/img/headshot.jpg`.
 
 ## Update content
 
@@ -47,44 +48,46 @@ To use a different filename or format such as `.webp`, change the single `src` o
 | Résumé PDF | Replace `assets/Evans-Armantrading-III-Resume.pdf` (same name) |
 | SEO title, description, and social image | `<head>` of `index.html`; social image is `assets/img/og.jpg` |
 
-### LinkedIn posts
+### Things I've done (LinkedIn highlights)
 
-Posts are defined in `assets/js/posts-data.js`, one object per post, newest first. Each card shows a photo from the post. Clicking it opens a lightbox with all of the post's photos, a verbatim excerpt, a short summary, and links.
+Highlights are defined in `assets/js/posts-data.js`, one card per event or achievement, newest first. Posts about the same event share one card: a start and its wrap-up, a win and the coverage of that win, or courses toward one certificate. Each card shows a cover photo. Clicking it opens a lightbox with every photo, a verbatim quote from each source post, a short summary, and links.
 
 ```js
 {
-  img: "28",                 // post number
-  photos: 3,                 // assets/posts/photos/post-28-1.webp ... -3.webp (+ post-28-card.webp)
+  key: "fico",               // photo set: assets/posts/photos/post-fico-card.webp, post-fico-1..N.webp
+  photos: 6,                 // number of photos in that set
+  posts: ["04", "03"],       // source post numbers (reference only)
   alt: "What the cover photo shows",
   pos: "50% 40%",            // optional focus point for the cropped 4:3 card
-  fit: "contain", bg: "#fff",// optional, for logos and certificates (shown whole on a colour)
+  fit: "contain", bg: "#fff",// optional, for logos and badges (shown whole on a colour)
   featured: true,            // show in the default "Featured" filter
-  cats: ["award", "project"],// award | research | project | career | community | cert
+  cats: ["career"],          // award | research | project | career | community | cert
   title: "Short headline",
-  excerpt: "Exact opening line from the post.",
+  quotes: ["Exact line from the first post.", "Exact line from the follow-up."],
   summary: "One or two neutral sentences.",
-  url: "https://www.linkedin.com/posts/..."  // direct link; "" falls back to the activity feed
+  url: "",                   // direct LinkedIn link; "" falls back to the activity feed
+  links: [{ label: "Devpost", href: "https://..." }]
 }
 ```
 
-**Adding photos:** put the post's photos in `LinkedIn_SS/Original_Posts/NN_<name>/image_01.jpg`, `image_02.jpg`, and so on. List the order in `ORDER` in `tools/build_post_photos.py` (the first entry is the card cover), then run:
+**Photos:** each card's photos are listed in `ORDER` in `tools/build_post_photos.py`, using the same `key`, with the cover first. An entry is either `("NN", k)`, meaning `image_0k.jpg` from post NN's folder in `LinkedIn_SS/Original_Posts`, or a file path in the repo. The Google Cybersecurity badge is stored at `assets/src/certs/google-cybersecurity-badge.png`, taken from the verified Credly badge. Rebuild with:
 
 ```bash
 python tools/build_post_photos.py "C:/Users/evans/Desktop/LinkedIn_SS/Original_Posts"
 ```
 
-**Posts without photos** (currently the four Google certificate posts and the first DSU post) leave out `photos` and fall back to a screenshot. These need `assets/posts/post-NN.webp`, a 452 px-tall `post-NN-thumb.webp` top crop, and `w`/`h` set to the screenshot's size:
+**Cards without photos** (currently only "Continuing CS at Delaware State") use `screenshot: { img, w, h }` in place of `key` and `photos`. They need `assets/posts/post-NN.webp` and a 452 px-tall `post-NN-thumb.webp` top crop:
 
 ```bash
 python -c "from PIL import Image; im=Image.open('shot.png').convert('RGB'); im.save('assets/posts/post-28.webp','WEBP',quality=82,method=6); im.crop((0,0,im.width,min(im.height,452))).save('assets/posts/post-28-thumb.webp','WEBP',quality=80,method=6)"
 ```
 
-No post URLs were available, so every post currently links to the LinkedIn activity feed. To link a post directly, paste its URL into that post's `url` field (on LinkedIn: **⋯ → Copy link to post**).
+No post URLs were available, so every card currently links to the LinkedIn activity feed. To link a card directly, paste a post's URL into its `url` field (on LinkedIn: **⋯ → Copy link to post**).
 
 ### Regenerating media
 
 - `assets/src/` holds the original Higgsfield renders: the poster, section art, texture, and `hero_raw.mp4`. The deployed site doesn't use them; the workflow excludes them.
-- `python tools/build_images.py` rebuilds the poster sizes, section art, grain tile, OG image, icons, and headshot placeholder. Note that it overwrites `headshot.jpg`, so keep your photo somewhere else if you run it.
+- `python tools/build_images.py` rebuilds the poster sizes, section art, grain tile, OG image, icons, and the headshot crop.
 - `bash tools/encode_video.sh` rebuilds the seamless hero loop as MP4 and WebM at 1080p and 540p. Desktop uses about 370 KB and phones about 110 KB.
 
 ## Deployment
