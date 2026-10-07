@@ -11,7 +11,7 @@ It's a single static page (HTML, CSS, and vanilla JS) with no build step, framew
 - **Identity: "signal."** Ink-black field, bone-white type, and chartreuse (`#d4ff3a`) accents drawn from computer-vision detection boxes. Corner brackets recur as the monogram, image frames, card hovers, and hero annotations.
 - **Monogram:** an "E" built from a stem and three bars (E, and the "III"), set inside detection brackets. Source: `favicon.svg` and the `#mark` symbol in `index.html`.
 - **Type:** Bricolage Grotesque (display), Geist (body), Geist Mono (labels), all self-hosted variable WOFF2 files under the SIL Open Font License.
-- **Imagery:** the hero video, poster still, section art, and grain texture were all generated with Higgsfield. The OG image, icons, and headshot placeholder are composed from those renders by `tools/build_images.py`.
+- **Imagery:** the hero video, poster still, section art, and grain texture were all generated with Higgsfield. The OG image and icons are composed from those renders by `tools/build_images.py`.
 - **Motion:** a transform-only parallax with three hero depths (video, grid, annotations) plus section art, `IntersectionObserver` reveals, and a pause control for the background video. With `prefers-reduced-motion: reduce`, the video never loads or autoplays, parallax is off, and reveals are instant. The video is also skipped when Save-Data is on.
 
 ## Run locally
