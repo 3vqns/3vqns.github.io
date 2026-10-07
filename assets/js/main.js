@@ -167,14 +167,25 @@
 
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
+  const cardImage = (p) => {
+    if (!p.photos) {
+      return `<span class="post-card__shot post-card__shot--screenshot">
+            <img src="assets/posts/post-${p.img}-thumb.webp" width="339" height="452" loading="lazy" decoding="async"
+                 alt="Screenshot of Evans's LinkedIn post: ${esc(p.title)}">
+          </span>`;
+    }
+    const style = [p.pos ? `object-position:${p.pos}` : "", p.bg ? `background:${p.bg}` : ""].filter(Boolean).join(";");
+    return `<span class="post-card__shot${p.fit === "contain" ? " post-card__shot--contain" : ""}"${p.bg ? ` style="background:${p.bg}"` : ""}>
+            <img src="assets/posts/photos/post-${p.img}-card.webp" loading="lazy" decoding="async"
+                 alt="${esc(p.alt || p.title)}"${style ? ` style="${style}"` : ""}>
+          </span>`;
+  };
+
   if (grid && POSTS.length) {
     grid.innerHTML = POSTS.map((p, i) => `
       <li class="post-card" data-reveal data-index="${i}">
         <button type="button" class="post-card__btn" aria-haspopup="dialog" aria-label="Open post: ${esc(p.title)}">
-          <span class="post-card__shot">
-            <img src="assets/posts/post-${p.img}-thumb.webp" width="339" height="452" loading="lazy" decoding="async"
-                 alt="Screenshot of Evans's LinkedIn post: ${esc(p.title)}">
-          </span>
+          ${cardImage(p)}
           <span class="post-card__body">
             <span class="post-card__cat">${p.cats.map((c) => CAT_LABEL[c]).join(" · ")}</span>
             <span class="post-card__title">${esc(p.title)}</span>
@@ -212,10 +223,20 @@
   const shot = lightbox && $(".lightbox__shot", lightbox);
   const renderPost = () => {
     const p = POSTS[currentList[currentIndex]];
-    const img = $("[data-lb-img]", lightbox);
-    img.src = `assets/posts/post-${p.img}.webp`;
-    img.width = p.w; img.height = p.h;
-    img.alt = `Full screenshot of Evans's LinkedIn post: ${p.title}`;
+    if (p.photos) {
+      shot.classList.add("lightbox__shot--photos");
+      shot.setAttribute("aria-label", `Photos from the post, ${p.photos} total, scrollable`);
+      shot.innerHTML = Array.from({ length: p.photos }, (_, k) => {
+        const alt = k === 0 ? (p.alt || p.title) : `Photo ${k + 1} of ${p.photos} from the post: ${p.title}`;
+        const bg = k === 0 && p.bg ? ` style="background:${p.bg}"` : "";
+        return `<img src="assets/posts/photos/post-${p.img}-${k + 1}.webp" alt="${esc(alt)}" decoding="async"${k ? ' loading="lazy"' : ""}${bg}>`;
+      }).join("");
+    } else {
+      shot.classList.remove("lightbox__shot--photos");
+      shot.setAttribute("aria-label", "Post screenshot, scrollable");
+      shot.innerHTML = `<img src="assets/posts/post-${p.img}.webp" width="${p.w}" height="${p.h}" decoding="async"
+        alt="${esc(`Full screenshot of Evans's LinkedIn post: ${p.title}`)}">`;
+    }
     $("[data-lb-title]", lightbox).textContent = p.title;
     $("[data-lb-quote]", lightbox).textContent = `“${p.excerpt}”`;
     $("[data-lb-summary]", lightbox).textContent = p.summary;

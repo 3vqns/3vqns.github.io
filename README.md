@@ -49,12 +49,15 @@ To use a different filename or format such as `.webp`, change the single `src` o
 
 ### LinkedIn posts
 
-Posts are defined in `assets/js/posts-data.js`, one object per post, newest first:
+Posts are defined in `assets/js/posts-data.js`, one object per post, newest first. Each card shows a photo from the post. Clicking it opens a lightbox with all of the post's photos, a verbatim excerpt, a short summary, and links.
 
 ```js
 {
-  img: "28",                 // assets/posts/post-28.webp and post-28-thumb.webp
-  w: 339, h: 1200,           // full screenshot size in px
+  img: "28",                 // post number
+  photos: 3,                 // assets/posts/photos/post-28-1.webp ... -3.webp (+ post-28-card.webp)
+  alt: "What the cover photo shows",
+  pos: "50% 40%",            // optional focus point for the cropped 4:3 card
+  fit: "contain", bg: "#fff",// optional, for logos and certificates (shown whole on a colour)
   featured: true,            // show in the default "Featured" filter
   cats: ["award", "project"],// award | research | project | career | community | cert
   title: "Short headline",
@@ -64,13 +67,19 @@ Posts are defined in `assets/js/posts-data.js`, one object per post, newest firs
 }
 ```
 
-To add a screenshot, save the PNG and convert it to a WebP plus a 452 px-tall top-crop thumbnail:
+**Adding photos:** put the post's photos in `LinkedIn_SS/Original_Posts/NN_<name>/image_01.jpg`, `image_02.jpg`, and so on. List the order in `ORDER` in `tools/build_post_photos.py` (the first entry is the card cover), then run:
+
+```bash
+python tools/build_post_photos.py "C:/Users/evans/Desktop/LinkedIn_SS/Original_Posts"
+```
+
+**Posts without photos** (currently the four Google certificate posts and the first DSU post) leave out `photos` and fall back to a screenshot. These need `assets/posts/post-NN.webp`, a 452 px-tall `post-NN-thumb.webp` top crop, and `w`/`h` set to the screenshot's size:
 
 ```bash
 python -c "from PIL import Image; im=Image.open('shot.png').convert('RGB'); im.save('assets/posts/post-28.webp','WEBP',quality=82,method=6); im.crop((0,0,im.width,min(im.height,452))).save('assets/posts/post-28-thumb.webp','WEBP',quality=80,method=6)"
 ```
 
-The screenshots don't include post URLs, so every post currently links to the LinkedIn activity feed. To link a post directly, paste its URL into that post's `url` field (on LinkedIn: **⋯ → Copy link to post**).
+No post URLs were available, so every post currently links to the LinkedIn activity feed. To link a post directly, paste its URL into that post's `url` field (on LinkedIn: **⋯ → Copy link to post**).
 
 ### Regenerating media
 
