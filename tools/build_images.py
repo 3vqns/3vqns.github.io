@@ -73,7 +73,7 @@ for w in (1920, 1280, 960):
 resized(poster, 1280).save(OUT / "hero-poster-1280.jpg", quality=80, optimize=True, progressive=True)
 
 # --- Section art --------------------------------------------------------
-for name in ("research", "projects"):
+for name in ("projects",):
     im = Image.open(SRC / f"{name}_raw.png").convert("RGB")
     for w in (1600, 800):
         save_webp(resized(im, w), OUT / f"{name}-{w}.webp", 76)

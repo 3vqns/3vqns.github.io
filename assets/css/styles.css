@@ -538,8 +538,6 @@ button { font: inherit; color: inherit; }
   line-height: 1.05;
   color: var(--signal);
 }
-.readout__arrow { color: var(--mute); margin-inline: 0.12em; font-weight: 400; }
-.nowrap { white-space: nowrap; }
 .section__head--over .section__title { text-shadow: 0 2px 30px rgba(7, 9, 12, 0.9); }
 .readout__label { color: var(--mute); line-height: 1.4; }
 
@@ -558,13 +556,15 @@ button { font: inherit; color: inherit; }
 /* ---------- Experience -------------------------------------------------- */
 .timeline { display: grid; gap: 0; border-top: 1px solid var(--line); }
 .role {
+  --role-gap: clamp(24px, 4vw, 64px);
   display: grid;
   grid-template-columns: minmax(0, 3fr) minmax(0, 9fr);
-  gap: 24px clamp(24px, 4vw, 64px);
+  gap: 24px var(--role-gap);
   padding-block: clamp(36px, 5vw, 56px);
   border-bottom: 1px solid var(--line);
 }
-.role--feature { grid-template-columns: minmax(0, 3fr) minmax(0, 5fr) minmax(0, 4fr); }
+/* first column matches the 3fr column of a two-column .role so titles line up */
+.role--feature { grid-template-columns: calc((100% - var(--role-gap)) * 0.25) minmax(0, 5fr) minmax(0, 4fr); }
 .role__date { color: var(--signal); margin-bottom: 6px; }
 .role__place { color: var(--mute); font-size: 0.92rem; }
 .role__title {
@@ -589,12 +589,16 @@ button { font: inherit; color: inherit; }
   align-self: center;
   overflow: hidden;
 }
-.role__art img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; scale: 1.14; }
+.role__art img { width: 100%; height: auto; }
+.role__caption {
+  position: absolute; left: 10px; bottom: 10px;
+  font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 3px 7px; background: rgba(7, 9, 12, 0.78); color: var(--bone);
+}
 
 @media (max-width: 900px) {
   .role, .role--feature { grid-template-columns: 1fr; gap: 12px; }
   .role__art { margin-top: 16px; }
-  .role__art img { aspect-ratio: 16 / 10; }
 }
 
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
